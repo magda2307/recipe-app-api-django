@@ -41,6 +41,12 @@ INSTALLED_APPS = [
 <<<<<<< Updated upstream
     'core'
 ]
+=======
+    'core',
+    'drf_spectacular',
+    'user',
+    ]
+>>>>>>> Stashed changes
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
