@@ -47,6 +47,7 @@ class PublicUserApiTests(TestCase):
         'password':'testpass123',
         'name': 'Test Name'
         }
+        create_user(**payload)
         res = self.client.post(CREATE_USER_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         
@@ -59,7 +60,7 @@ class PublicUserApiTests(TestCase):
         }
         res = self.client.post(CREATE_USER_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        user_exists = get_user_model().objects().filter(
+        user_exists = get_user_model().objects.filter(
             email=payload['email']
             ).exists()
         self.assertFalse(user_exists)
@@ -88,7 +89,7 @@ class PublicUserApiTests(TestCase):
         create_user(**user_details)
         res = self.client.post(TOKEN_URL, bad_user_details)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('token', res.data)
+        self.assertNotIn('token', res.data)
         
     def test_create_token_blank_password(self):
         """Test generate token for blank password in user credentials."""
@@ -98,5 +99,5 @@ class PublicUserApiTests(TestCase):
         }
         res = self.client.post(TOKEN_URL, bad_user_details)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('token', res.data)
+        self.assertNotIn('token', res.data)
         
