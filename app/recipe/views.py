@@ -28,5 +28,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Return the serializer class for request."""
         if self.action == 'list':
             return serializers.RecipeSerializer
-        else:
-            return self.serializer_class
+        return self.serializer_class
+        
+    def perform_create(self, serializer):
+        """Create a new recipe."""
+        serializer.save(user=self.request.user)
+        
