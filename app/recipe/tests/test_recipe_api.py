@@ -53,13 +53,13 @@ class PrivateRecipeApiTests(TestCase):
     """Test authenticated API requests."""
     def setUp(self):
         self.client = APIClient()
-        self.user = create_user (
+        self.user = create_user(
             email = 'user@example.com',
             password =  'testpass123',
+            name = 'name'
         )
         self.client.force_authenticate(self.user)
-    def test_retrieve_recipes(self):
-        
+    def test_retrieve_recipes(self):   
         """Test retrieving a list of recipes."""
         create_recipe(user=self.user)
         create_recipe(user=self.user)
@@ -68,6 +68,8 @@ class PrivateRecipeApiTests(TestCase):
         serializer = RecipeSerializer(recipes, many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
+        
+        
     def test_recipe_list_limited_to_user(self):
         """Test list of recipes is limited to authenticated user."""
         other_user = create_user (
