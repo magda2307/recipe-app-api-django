@@ -9,7 +9,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Recipe
+from core.models import Recipe, Tag
 
 from recipe.serializers import RecipeSerializer
 from recipe.serializers import (
@@ -180,3 +180,23 @@ class PrivateRecipeApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
         self.assertTrue(Recipe.objects.filter(id=recipe.id).exists())
+        
+        
+    def test_create_a_recipe_with_new_tags(self):
+        """Test creating a racipe with new tags."""
+        payload = {
+            'title' : "curry",
+            'time_minutes' : 30,
+            'price' : Decimal(2.99),
+            'tags' : [
+                {
+                    'name' : "thai"
+                },
+                {
+                    'name' : 'dinner'
+                }
+            ]
+        }
+        res = self.client.post(RECIPES_URL, payload, format = 'json')
+        
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
