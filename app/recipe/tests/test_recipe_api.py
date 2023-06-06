@@ -183,20 +183,50 @@ class PrivateRecipeApiTests(TestCase):
         
         
     def test_create_a_recipe_with_new_tags(self):
-        """Test creating a racipe with new tags."""
+        """Test creating a recipe with new tags(creating tags directly through recipe)."""
         payload = {
             'title' : "curry",
             'time_minutes' : 30,
             'price' : Decimal(2.99),
             'tags' : [
-                {
-                    'name' : "thai"
-                },
-                {
-                    'name' : 'dinner'
-                }
+                {'name' : "thai"},
+                {'name' : 'dinner'}
             ]
         }
         res = self.client.post(RECIPES_URL, payload, format = 'json')
         
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        recipe_id = res.json().get('id')
+        self.assertIsNotNone(recipe_id)
+        
+        recipe = Recipe.objects.get(id=recipe_id)
+        recipe.refresh_from_db()
+        self.assertTrue(recipe)
+        self.assertEqual(recipe.tags.count(), 2)
+        
+    # Check tag names
+        tag_names_payload = [tag['name'] for tag in payload['tags']]
+        tag_names_recipe = [tag.name for tag in recipe.tags.all()]
+        self.assertEqual(tag_names_recipe, tag_names_payload)
+        
+    def test_create_a_recipe_with_existing_tags(self):
+        """Test creating a recipe with existing tags."""
+        tag_indian = Tag.objects.create(user=self.user, name='indian')
+        
+        payload = {
+            'title' : "curry indian",
+            'time_minutes' : 30,
+            'price' : Decimal(2.99),
+            'tags' : [{'name':'indian'},]
+        }
+        res = self.client.post(RECIPES_URL, payload, format = 'json')
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        recipe_id = res.json().get('id')
+        self.assertIsNotNone(recipe_id)
+        
+        recipe = Recipe.objects.get(id=recipe_id)
+        recipe.refresh_from_db()
+        self.assertTrue(recipe)
+        self.assertEqual(recipe.tags.count(), 2)
+        self.assertEqual(tag_indian, recipe.name)
+        
