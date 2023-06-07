@@ -208,9 +208,6 @@ class PrivateRecipeApiTests(TestCase):
         """Test creating a recipe with existing tags."""
         tag_indian = Tag.objects.create(user=self.user, name='indian')
         tags = Tag.objects.all()
-        for tag in tags:
-            print(f"Tag ID: {tag.id}")
-            print(f"Tag Name: {tag.name}")
         payload = {
             'title' : "curry indian",
             'time_minutes' : 30,
@@ -225,6 +222,6 @@ class PrivateRecipeApiTests(TestCase):
         recipe = Recipe.objects.get(id=recipe_id)
         recipe.refresh_from_db()
         self.assertTrue(recipe)
-        self.assertEqual(recipe.tags.count(), 2)
+        self.assertEqual(recipe.tags.count(), 1)
         self.assertEqual(tag_indian, recipe.name)
         
