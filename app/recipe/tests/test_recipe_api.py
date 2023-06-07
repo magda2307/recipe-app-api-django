@@ -182,42 +182,40 @@ class PrivateRecipeApiTests(TestCase):
         self.assertTrue(Recipe.objects.filter(id=recipe.id).exists())
         
         
-    def test_create_a_recipe_with_new_tags(self):
-        """Test creating a recipe with new tags(creating tags directly through recipe)."""
+    def test_create_recipe_with_new_tags(self):
+        """Test creating a recipe with new tags."""
         payload = {
-            'title' : "curry",
-            'time_minutes' : 30,
-            'price' : Decimal(2.99),
-            'tags' : [
-                {'name' : "thai"},
-                {'name' : 'dinner'}
-            ]
+            'title': 'Thai Prawn Curry',
+            'time_minutes': 30,
+            'price': Decimal('2.50'),
+            'tags': [{'name': 'Thai'}, {'name': 'Dinner'}],
         }
-        res = self.client.post(RECIPES_URL, payload, format = 'json')
-        
+        res = self.client.post(RECIPES_URL, payload, format='json')
+
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        recipe_id = res.json().get('id')
-        self.assertIsNotNone(recipe_id)
-        
-        recipe = Recipe.objects.get(id=recipe_id)
-        recipe.refresh_from_db()
-        self.assertTrue(recipe)
+        recipes = Recipe.objects.filter(user=self.user)
+        self.assertEqual(recipes.count(), 1)
+        recipe = recipes[0]
         self.assertEqual(recipe.tags.count(), 2)
-        
-    # Check tag names
-        tag_names_payload = [tag['name'] for tag in payload['tags']]
-        tag_names_recipe = [tag.name for tag in recipe.tags.all()]
-        self.assertEqual(tag_names_recipe, tag_names_payload)
+        for tag in payload['tags']:
+            exists = recipe.tags.filter(
+                name=tag['name'],
+                user=self.user,
+            ).exists()
+            self.assertTrue(exists)
         
     def test_create_a_recipe_with_existing_tags(self):
         """Test creating a recipe with existing tags."""
         tag_indian = Tag.objects.create(user=self.user, name='indian')
-        
+        tags = Tag.objects.all()
+        for tag in tags:
+            print(f"Tag ID: {tag.id}")
+            print(f"Tag Name: {tag.name}")
         payload = {
             'title' : "curry indian",
             'time_minutes' : 30,
             'price' : Decimal(2.99),
-            'tags' : [{'name':'indian'},]
+            'tags' : [{'name':'indian'},],
         }
         res = self.client.post(RECIPES_URL, payload, format = 'json')
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
