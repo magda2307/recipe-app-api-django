@@ -11,6 +11,12 @@ from core import models
 
 test_email = 'test@example.com'
 test_password = 'testpass123'
+
+def create_user(email=test_email, password = test_password):
+    """Create and return a new user."""
+    return get_user_model().objects.create_user(email=email, password=test_password)
+    
+    
 class ModelTests(TestCase):
     """Test models."""
     def test_create_user_with_email_successful(self):
@@ -34,9 +40,7 @@ class ModelTests(TestCase):
         for email, expected in sample_emails:
             user = get_user_model().objects.create_user(email, 'sample123')
             self.assertEqual(user.email, expected)
-            
-            
-            
+                
     def test_new_user_without_email_raises_error(self):
         """Test that creating a user without an email address raises a ValueError."""
         with self.assertRaises(ValueError):
@@ -60,3 +64,11 @@ class ModelTests(TestCase):
             description = 'Sample recipe desc'
         )
         self.assertEqual(str(recipe), recipe.title)
+    
+    def test_create_tag(self):
+        """Test creating a tag is successful"""
+        user = create_user()
+        tag = models.Tag.objects.create(user=user, name = 'Tag1')
+        
+        self.assertEqual(str(tag), tag.name)
+        
