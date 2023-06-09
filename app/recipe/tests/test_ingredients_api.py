@@ -52,9 +52,9 @@ class PrivateIngredientsApiTests(TestCase):
         res = self.client.get(INGREDIENTS_URL)
         
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        all_ingredients = Ingredient.object.all().order_by('-name')
+        all_ingredients = Ingredient.objects.all().order_by('-name')
         serializer = IngredientSerializer(all_ingredients, many=True)
-        self.assertEqual(res.content, serializer.data)
+        self.assertEqual(res.data, serializer.data)
     
     def test_ingredients_limited_to_user(self):
         """Test ingredients limited to an user."""
@@ -65,6 +65,6 @@ class PrivateIngredientsApiTests(TestCase):
         res = self.client.get(INGREDIENTS_URL)
         
         self.assertTrue(res.data[0]['name'], ingredient.name)
-        self.assertNotIn(res.content, ingredient2)
+        self.assertEqual(len(res.data), 1)
         self.assertTrue(res.status_code, status.HTTP_200_OK)
         
